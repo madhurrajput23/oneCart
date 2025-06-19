@@ -2,11 +2,11 @@ import {getAuth, GoogleAuthProvider} from "firebase/auth"
 import { initializeApp } from "firebase/app";
 const firebaseConfig = {
   apiKey: import.meta.env.VITE_FIREBASE_APIKEY ,
-  authDomain: "loginonecart.firebaseapp.com",
-  projectId: "loginonecart",
-  storageBucket: "loginonecart.firebasestorage.app",
-  messagingSenderId: "242165258894",
-  appId: "1:242165258894:web:0155a2ced93e20073247df"
+ authDomain: "loginonecart-e09d4.firebaseapp.com",
+  projectId: "loginonecart-e09d4",
+  storageBucket: "loginonecart-e09d4.firebasestorage.app",
+   messagingSenderId: "794716710996",
+  appId: "1:794716710996:web:8b0728716c11c63bede5c1"
 };
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app)
@@ -15,3 +15,13 @@ const provider = new GoogleAuthProvider()
 
 export {auth , provider}
 
+
+
+
+
+  // apiKey: "AIzaSyCwZdWBo9PRLG7pBwQchkgdIe8WIukrsqM",
+  // authDomain: "loginonecart-e09d4.firebaseapp.com",
+  // projectId: "loginonecart-e09d4",
+  // storageBucket: "loginonecart-e09d4.firebasestorage.app",
+  // messagingSenderId: "794716710996",
+  // appId: "1:794716710996:web:8b0728716c11c63bede5c1"
