@@ -1,6 +1,5 @@
-import React, { useCallback, useContext } from "react";
+import React, { useContext } from "react";
 import { Navigate, Route, Routes, useLocation } from "react-router-dom";
-import Registration from "./pages/Registration";
 import Home from "./pages/Home";
 import Login from "./pages/Login";
 import Nav from "./component/Nav";
@@ -34,13 +33,7 @@ function App() {
 
         <Route
           path="/signup"
-          element={
-            userData ? (
-              <Navigate to={location.state?.from || "/"} />
-            ) : (
-              <Registration />
-            )
-          }
+          element={<Navigate to="/login" replace />}
         />
 
         <Route

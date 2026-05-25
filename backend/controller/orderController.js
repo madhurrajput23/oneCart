@@ -13,7 +13,7 @@ const razorpayInstance = new razorpay({
 export const placeOrder = async (req, res) => {
   try {
     const { items, amount, address } = req.body;
-    const userId = req.userId;
+    const userId = req.userId || "guest_user";
     const orderData = {
       items,
       amount,
@@ -27,7 +27,9 @@ export const placeOrder = async (req, res) => {
     const newOrder = new Order(orderData);
     await newOrder.save();
 
-    await User.findByIdAndUpdate(userId, { cartData: {} });
+    if (req.userId) {
+      await User.findByIdAndUpdate(userId, { cartData: {} });
+    }
 
     return res.status(201).json({ message: "Order Place" });
   } catch (error) {
@@ -39,7 +41,7 @@ export const placeOrder = async (req, res) => {
 export const placeOrderRazorpay = async (req, res) => {
   try {
     const { items, amount, address } = req.body;
-    const userId = req.userId;
+    const userId = req.userId || "guest_user";
     const orderData = {
       items,
       amount,
@@ -73,12 +75,14 @@ export const placeOrderRazorpay = async (req, res) => {
 
 export const verifyRazorpay = async (req, res) => {
   try {
-    const userId = req.userId;
+    const userId = req.userId || "guest_user";
     const { razorpay_order_id } = req.body;
     const orderInfo = await razorpayInstance.orders.fetch(razorpay_order_id);
     if (orderInfo.status === "paid") {
       await Order.findByIdAndUpdate(orderInfo.receipt, { payment: true });
-      await User.findByIdAndUpdate(userId, { cartData: {} });
+      if (req.userId) {
+        await User.findByIdAndUpdate(userId, { cartData: {} });
+      }
       res.status(200).json({ message: "Payment Successful" });
     } else {
       res.json({ message: "Payment Failed" });
@@ -91,7 +95,7 @@ export const verifyRazorpay = async (req, res) => {
 
 export const userOrders = async (req, res) => {
   try {
-    const userId = req.userId;
+    const userId = req.userId || "guest_user";
     const orders = await Order.find({ userId });
     return res.status(200).json(orders);
   } catch (error) {

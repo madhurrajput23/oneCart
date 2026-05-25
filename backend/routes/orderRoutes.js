@@ -6,10 +6,10 @@ import adminAuth from '../middleware/adminAuth.js'
 const orderRoutes = express.Router()
 
 //for User
-orderRoutes.post("/placeorder",isAuth,placeOrder)
-orderRoutes.post("/razorpay",isAuth,placeOrderRazorpay)
-orderRoutes.post("/userorder",isAuth,userOrders)
-orderRoutes.post("/verifyrazorpay",isAuth,verifyRazorpay)
+orderRoutes.post("/placeorder", placeOrder)
+orderRoutes.post("/razorpay", placeOrderRazorpay)
+orderRoutes.post("/userorder", userOrders)
+orderRoutes.post("/verifyrazorpay", verifyRazorpay)
  
 //for Admin
 orderRoutes.post("/list",adminAuth,allOrders)

@@ -1,146 +1,151 @@
-import React from "react";
+import React, { useState, useContext } from "react";
 import Logo from "../assets/logo.png";
 import { useNavigate } from "react-router-dom";
-import google from "../assets/google.png";
-import { IoEyeOutline } from "react-icons/io5";
-import { IoEye } from "react-icons/io5";
-import { useState } from "react";
-import { useContext } from "react";
-import { authDataContext } from "../context/authContext";
-import axios from "axios";
-import { signInWithPopup } from "firebase/auth";
-import { auth, provider } from "../../utils/Firebase";
+import { IoEyeOutline, IoEye } from "react-icons/io5";
 import { userDataContext } from "../context/UserContext";
 import Loading from "../component/Loading";
 import { toast } from "react-toastify";
+import { MdEmail, MdLock, MdShoppingBag } from "react-icons/md";
+
+const VALID_EMAIL    = "jack123@gmail.com";
+const VALID_PASSWORD = "Jack1234";
 
 function Login() {
-  let [show, setShow] = useState(false);
-  let [email, setEmail] = useState("");
-  let [password, setPassword] = useState("");
-  let { serverUrl } = useContext(authDataContext);
-  let { getCurrentUser } = useContext(userDataContext);
-  let [loading, setLoading] = useState(false);
+  const [show, setShow]         = useState(false);
+  const [email, setEmail]       = useState(VALID_EMAIL);
+  const [password, setPassword] = useState(VALID_PASSWORD);
+  const [loading, setLoading]   = useState(false);
+  const { setUserData }         = useContext(userDataContext);
+  const navigate                = useNavigate();
 
-  let navigate = useNavigate();
-
-  const handleLogin = async (e) => {
-    setLoading(true);
+  const handleLogin = (e) => {
     e.preventDefault();
-    try {
-      let result = await axios.post(
-        serverUrl + "/api/auth/login",
-        {
-          email,
-          password,
-        },
-        { withCredentials: true }
-      );
-      console.log(result.data);
+    setLoading(true);
+    setTimeout(() => {
+      if (email === VALID_EMAIL && password === VALID_PASSWORD) {
+        const user = { name: "Jack", email: VALID_EMAIL };
+        localStorage.setItem("onecart_user", JSON.stringify(user));
+        setUserData(user);
+        toast.success("Welcome back, Jack! 👋");
+        navigate("/");
+      } else {
+        toast.error("Invalid credentials. Please try again.");
+      }
       setLoading(false);
-      getCurrentUser();
-      navigate("/");
-      toast.success("User Login Successful");
-    } catch (error) {
-      console.log(error);
-      toast.error("User Login Failed");
-    }
+    }, 800);
   };
-  const googlelogin = async () => {
-    try {
-      const response = await signInWithPopup(auth, provider);
-      let user = response.user;
-      let name = user.displayName;
-      let email = user.email;
 
-      const result = await axios.post(
-        serverUrl + "/api/auth/googlelogin",
-        { name, email },
-        { withCredentials: true }
-      );
-      console.log(result.data);
-      getCurrentUser();
-      navigate("/");
-    } catch (error) {
-      console.log(error);
-    }
-  };
   return (
-    <div className="w-[100vw] h-[100vh] bg-gradient-to-l from-[#141414] to-[#0c2025] text-[white] flex flex-col items-center justify-start">
-      <div
-        className="w-[100%] h-[80px] flex items-center justify-start px-[30px] gap-[10px] cursor-pointer"
-        onClick={() => navigate("/")}
-      >
-        <img className="w-[40px]" src={Logo} alt="" />
-        <h1 className="text-[22px] font-sans ">OneCart</h1>
-      </div>
+    <div className="w-screen h-screen bg-gradient-to-b from-[#060f12] via-[#0c1a1f] to-[#141414]
+      flex items-center justify-center relative overflow-hidden">
 
-      <div className="w-[100%] h-[100px] flex items-center justify-center flex-col gap-[10px]">
-        <span className="text-[25px] font-semibold">Login Page</span>
-        <span className="text-[16px]">
-          Welcome to OneCart, Place your order
-        </span>
-      </div>
-      <div className="max-w-[600px] w-[90%] h-[500px] bg-[#00000025] border-[1px] border-[#96969635] backdrop:blur-2xl rounded-lg shadow-lg flex items-center justify-center ">
-        <form
-          action=""
-          onSubmit={handleLogin}
-          className="w-[90%] h-[90%] flex flex-col items-center justify-start gap-[20px]"
-        >
-          <div
-            className="w-[90%] h-[50px] bg-[#42656cae] rounded-lg flex items-center justify-center gap-[10px] py-[20px] cursor-pointer"
-            onClick={googlelogin}
-          >
-            <img src={google} alt="" className="w-[20px]" /> Login account with
-            Google
+      {/* Animated blobs */}
+      <div className="absolute top-[-120px] left-[-100px] w-[500px] h-[500px] rounded-full
+        bg-cyan-500/10 blur-[130px] animate-float" />
+      <div className="absolute bottom-[-100px] right-[-80px] w-[400px] h-[400px] rounded-full
+        bg-indigo-500/12 blur-[110px]"
+        style={{ animation: 'float 5s ease-in-out infinite reverse' }} />
+      <div className="absolute top-[40%] right-[10%] w-[200px] h-[200px] rounded-full
+        bg-purple-500/8 blur-[80px]" />
+
+      {/* Floating particles */}
+      {[...Array(6)].map((_, i) => (
+        <div key={i}
+          className="absolute w-1 h-1 rounded-full bg-cyan-400/30"
+          style={{
+            top: `${15 + i * 14}%`,
+            left: `${8 + i * 15}%`,
+            animation: `float ${3 + i * 0.5}s ease-in-out infinite`,
+            animationDelay: `${i * 0.4}s`
+          }} />
+      ))}
+
+      {/* Card */}
+      <div className="relative w-[90%] max-w-[420px] glass border border-white/10 rounded-2xl
+        shadow-2xl shadow-black/60 p-8 md:p-10 animate-scale-in">
+
+        {/* Glow ring */}
+        <div className="absolute inset-0 rounded-2xl border border-cyan-400/5
+          shadow-[inset_0_0_60px_rgba(45,212,212,0.03)] pointer-events-none" />
+
+        {/* Logo */}
+        <div className="flex flex-col items-center mb-8">
+          <div className="relative mb-4">
+            <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-cyan-500/20 to-indigo-600/20
+              border border-cyan-400/20 flex items-center justify-center animate-float">
+              <img src={Logo} alt="OneCart" className="w-9 h-9" />
+            </div>
+            <div className="absolute -bottom-1 -right-1 w-5 h-5 bg-gradient-to-br from-cyan-500 to-indigo-600
+              rounded-full flex items-center justify-center">
+              <MdShoppingBag className="w-3 h-3 text-white" />
+            </div>
           </div>
-          <div className="w-[100%] h-[20px] flex items-center justify-center gap-[10px]">
-            <div className="w-[40%] h-[1px] bg-[#96969635]"></div> OR{" "}
-            <div className="w-[40%] h-[1px] bg-[#96969635]"></div>
-          </div>
-          <div className="w-[90%] h-[400px] flex flex-col items-center justify-center gap-[15px]  relative">
+          <h1 className="text-2xl font-bold gradient-text">OneCart</h1>
+          <p className="text-white/40 text-sm mt-1">Sign in to your account</p>
+        </div>
+
+        {/* Form */}
+        <form onSubmit={handleLogin} className="flex flex-col gap-4">
+          {/* Email */}
+          <div className="relative group">
+            <MdEmail className="absolute left-3.5 top-1/2 -translate-y-1/2 text-white/25
+              group-focus-within:text-cyan-400 w-5 h-5 transition-colors duration-300" />
             <input
-              type="text"
-              className="w-[100%] h-[50px] border-[2px] border-[#96969635] backdrop:blur-sm rounded-lg shadow-lg bg-transparent placeholder-[#ffffffc7] px-[20px] font-semibold"
-              placeholder="Email"
+              type="email"
+              placeholder="Email address"
               required
+              autoComplete="email"
+              className="w-full h-[50px] rounded-xl bg-white/5 border border-white/10
+                pl-11 pr-4 text-white placeholder-white/25 text-sm outline-none
+                focus:border-cyan-400/60 focus:bg-white/8 transition-all duration-300"
               onChange={(e) => setEmail(e.target.value)}
               value={email}
             />
+          </div>
+
+          {/* Password */}
+          <div className="relative group">
+            <MdLock className="absolute left-3.5 top-1/2 -translate-y-1/2 text-white/25
+              group-focus-within:text-cyan-400 w-5 h-5 transition-colors duration-300" />
             <input
               type={show ? "text" : "password"}
-              className="w-[100%] h-[50px] border-[2px] border-[#96969635] backdrop:blur-sm rounded-lg shadow-lg bg-transparent placeholder-[#ffffffc7] px-[20px] font-semibold"
               placeholder="Password"
               required
+              autoComplete="current-password"
+              className="w-full h-[50px] rounded-xl bg-white/5 border border-white/10
+                pl-11 pr-12 text-white placeholder-white/25 text-sm outline-none
+                focus:border-cyan-400/60 focus:bg-white/8 transition-all duration-300"
               onChange={(e) => setPassword(e.target.value)}
               value={password}
             />
-            {!show && (
-              <IoEyeOutline
-                className="w-[20px] h-[20px] cursor-pointer absolute right-[5%] bottom-[57%]"
-                onClick={() => setShow((prev) => !prev)}
-              />
-            )}
-            {show && (
-              <IoEye
-                className="w-[20px] h-[20px] cursor-pointer absolute right-[5%] bottom-[57%]"
-                onClick={() => setShow((prev) => !prev)}
-              />
-            )}
-            <button className="w-[100%] h-[50px] bg-[#6060f5] rounded-lg flex items-center justify-center mt-[20px] text-[17px] font-semibold">
-              {loading ? <Loading /> : "Login"}
+            <button type="button"
+              onClick={() => setShow(p => !p)}
+              className="absolute right-3.5 top-1/2 -translate-y-1/2
+                text-white/25 hover:text-white/60 transition-colors duration-200">
+              {show ? <IoEye className="w-5 h-5" /> : <IoEyeOutline className="w-5 h-5" />}
             </button>
-            <p className="flex  gap-[10px]">
-              You haven't any account?{" "}
-              <span
-                className="text-[#5555f6cf] text-[17px] font-semibold cursor-pointer"
-                onClick={() => navigate("/signup")}
-              >
-                Create New Account
-              </span>
-            </p>
           </div>
+
+          {/* Submit */}
+          <button
+            type="submit"
+            disabled={loading}
+            className="w-full h-[50px] rounded-xl font-bold text-white text-[15px]
+              bg-gradient-to-r from-cyan-500 to-indigo-600
+              hover:from-cyan-400 hover:to-indigo-500
+              shadow-lg shadow-cyan-500/30 animate-pulse-glow
+              transition-all duration-300 hover:scale-[1.02] active:scale-95
+              disabled:opacity-60 disabled:cursor-not-allowed
+              flex items-center justify-center gap-2 mt-2"
+          >
+            {loading ? <Loading /> : '✦ Sign In'}
+          </button>
         </form>
+
+        {/* Hint */}
+        <p className="text-center text-white/20 text-[11px] mt-6 leading-relaxed">
+          Demo credentials pre-filled above
+        </p>
       </div>
     </div>
   );

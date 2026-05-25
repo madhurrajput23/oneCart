@@ -31,7 +31,7 @@ function ShopContext({children}) {
 
     const addtoCart = async (itemId , size) => {
        if (!size) {
-      console.log("Select Product Size");
+      toast.error("Please select a product size");
       return;
     }
 
@@ -49,57 +49,53 @@ function ShopContext({children}) {
     }
   
     setCartItem(cartData);
-  
+    localStorage.setItem('onecart_cart', JSON.stringify(cartData));
+    toast.success("Product Added to Cart");
 
-    if (userData) {
+    if (userData && userData.token) { // Only sync if we have a real backend token
       setLoading(true)
       try {
-      let result = await axios.post(serverUrl + "/api/cart/add" , {itemId,size} , {withCredentials: true})
-      console.log(result.data)
-      toast.success("Product Added")
-      setLoading(false)
-
-
-       
+        await axios.post(serverUrl + "/api/cart/add" , {itemId,size} , {withCredentials: true})
       }
       catch (error) {
         console.log(error)
-        setLoading(false)
-        toast.error("Add Cart Error")
-       
       }
-     
+      setLoading(false)
     } 
     }
 
-
     const getUserCart = async () => {
-      try {
-        const result = await axios.post(serverUrl + '/api/cart/get',{},{ withCredentials: true })
+      const localCart = localStorage.getItem('onecart_cart');
+      if (localCart) {
+        setCartItem(JSON.parse(localCart));
+      }
 
-      setCartItem(result.data)
-    } catch (error) {
-      console.log(error)
-     
-
-
-    }
-      
-    }
-    const updateQuantity = async (itemId , size , quantity) => {
-      let cartData = structuredClone(cartItem);
-    cartData[itemId][size] = quantity
-    setCartItem(cartData)
-
-    if (userData) {
-      try {
-        await axios.post(serverUrl + "/api/cart/update", { itemId, size, quantity }, { withCredentials: true })
-      } catch (error) {
-        console.log(error)
-        
+      if (userData && userData.token) {
+        try {
+          const result = await axios.post(serverUrl + '/api/cart/get',{},{ withCredentials: true })
+          if (result.data) {
+            setCartItem(result.data)
+            localStorage.setItem('onecart_cart', JSON.stringify(result.data));
+          }
+        } catch (error) {
+          console.log(error)
+        }
       }
     }
-      
+
+    const updateQuantity = async (itemId , size , quantity) => {
+      let cartData = structuredClone(cartItem);
+      cartData[itemId][size] = quantity
+      setCartItem(cartData)
+      localStorage.setItem('onecart_cart', JSON.stringify(cartData));
+
+      if (userData && userData.token) {
+        try {
+          await axios.post(serverUrl + "/api/cart/update", { itemId, size, quantity }, { withCredentials: true })
+        } catch (error) {
+          console.log(error)
+        }
+      }
     }
      const getCartCount = () => {
     let totalCount = 0;

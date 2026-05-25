@@ -2,6 +2,7 @@ import React, { useContext } from 'react'
 import { Route, Routes } from 'react-router-dom'
 import Home from './pages/Home'
 import Add from './pages/Add'
+import Edit from './pages/Edit'
 import Lists from './pages/Lists'
 import Orders from './pages/Orders'
 import Login from './pages/Login'
@@ -19,6 +20,7 @@ function App() {
       <Routes>
         <Route path='/' element={<Home/>}/>
         <Route path='/add' element={<Add/>}/>
+        <Route path='/edit' element={<Edit/>}/>
         <Route path='/lists' element={<Lists/>}/>
         <Route path='/orders' element={<Orders/>}/>
         <Route path='/login' element={<Login/>}/>

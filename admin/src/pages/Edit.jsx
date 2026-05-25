@@ -1,4 +1,4 @@
-import React, { useContext, useState } from 'react'
+import React, { useContext, useState, useEffect } from 'react'
 import Nav from '../component/Nav'
 import Sidebar from '../component/Sidebar'
 import upload from '../assets/upload image.jpg'
@@ -7,8 +7,13 @@ import axios from 'axios'
 import { toast } from 'react-toastify'
 import Loading from '../component/Loading'
 import { MdCloudUpload, MdDriveFileRenameOutline, MdDescription, MdAttachMoney, MdStar } from 'react-icons/md'
+import { useLocation, useNavigate } from 'react-router-dom'
 
-function Add() {
+function Edit() {
+  const location = useLocation()
+  const navigate = useNavigate()
+  const product = location.state?.product
+
   let [image1, setImage1] = useState(false)
   let [image2, setImage2] = useState(false)
   let [image3, setImage3] = useState(false)
@@ -23,16 +28,23 @@ function Add() {
   const [loading, setLoading] = useState(false)
   let { serverUrl } = useContext(authDataContext)
 
-  const handleAddProduct = async (e) => {
-    setLoading(true)
-    e.preventDefault()
-
-    if (!image1) {
-      toast.error("Please upload at least the primary image (Image 1)")
-      setLoading(false)
+  useEffect(() => {
+    if (!product) {
+      navigate('/lists')
       return
     }
+    setName(product.name)
+    setDescription(product.description)
+    setCategory(product.category)
+    setSubCategory(product.subCategory)
+    setPrice(product.price)
+    setBestSeller(product.bestseller)
+    setSizes(product.sizes || [])
+  }, [product, navigate])
 
+  const handleUpdateProduct = async (e) => {
+    setLoading(true)
+    e.preventDefault()
     try {
       let formData = new FormData()
       formData.append("name", name)
@@ -42,39 +54,35 @@ function Add() {
       formData.append("subCategory", subCategory)
       formData.append("bestseller", bestseller)
       formData.append("sizes", JSON.stringify(sizes))
-      formData.append("image1", image1)
-      formData.append("image2", image2)
-      formData.append("image3", image3)
-      formData.append("image4", image4)
+      if (image1) formData.append("image1", image1)
+      if (image2) formData.append("image2", image2)
+      if (image3) formData.append("image3", image3)
+      if (image4) formData.append("image4", image4)
 
-      let result = await axios.post(serverUrl + "/api/product/addproduct", formData, { withCredentials: true })
-      toast.success("Product added successfully! ✓")
+      let result = await axios.post(`${serverUrl}/api/product/update/${product._id}`, formData, { withCredentials: true })
+      toast.success("Product updated successfully! ✓")
       setLoading(false)
-      if (result.data) {
-        setName(""); setDescription(""); setImage1(false); setImage2(false)
-        setImage3(false); setImage4(false); setPrice(""); setBestSeller(false)
-        setCategory("Men"); setSubCategory("TopWear"); setSizes([])
-      }
+      navigate('/lists')
     } catch (error) {
       console.log(error); setLoading(false)
-      toast.error("Failed to add product")
+      toast.error("Failed to update product")
     }
   }
 
-  const ImageUpload = ({ id, image, setImage, label }) => (
+  const ImageUpload = ({ id, image, setImage, label, existingUrl }) => (
     <label htmlFor={id} className="cursor-pointer group">
       <div className={`w-[90px] h-[90px] rounded-xl overflow-hidden border-2 transition-all duration-300
         flex items-center justify-center relative
-        ${image
+        ${image || existingUrl
           ? 'border-cyan-400/50 shadow-lg shadow-cyan-400/10'
           : 'border-white/10 hover:border-cyan-400/40 bg-white/3 hover:bg-white/5'
         }`}>
         <img
-          src={image ? URL.createObjectURL(image) : upload}
+          src={image ? URL.createObjectURL(image) : (existingUrl || upload)}
           alt={label}
-          className={`${image ? 'w-full h-full object-cover' : 'w-[60%] h-[60%] object-contain opacity-40 group-hover:opacity-60'} transition-all`}
+          className={`${image || existingUrl ? 'w-full h-full object-cover' : 'w-[60%] h-[60%] object-contain opacity-40 group-hover:opacity-60'} transition-all`}
         />
-        {image && (
+        {(image || existingUrl) && (
           <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
             <span className="text-white text-[10px] font-bold">Change</span>
           </div>
@@ -99,6 +107,8 @@ function Add() {
       : 'bg-white/5 border-white/15 text-white/60 hover:border-cyan-400/40 hover:text-white'
     }`
 
+  if (!product) return null
+
   return (
     <div className="w-full min-h-screen bg-gradient-to-b from-[#060f12] via-[#0c1a1f] to-[#141414] text-white">
       <Nav />
@@ -110,24 +120,24 @@ function Add() {
 
           {/* Header */}
           <div className="mb-8 animate-fade-in-down">
-            <h1 className="text-2xl md:text-3xl font-bold text-white mb-1">Add New Product</h1>
-            <p className="text-white/40 text-sm">Fill in the details below to list a new product</p>
+            <h1 className="text-2xl md:text-3xl font-bold text-white mb-1">Edit Product</h1>
+            <p className="text-white/40 text-sm">Update product details and save changes</p>
           </div>
 
-          <form onSubmit={handleAddProduct} className="flex flex-col gap-6 animate-fade-in-up">
+          <form onSubmit={handleUpdateProduct} className="flex flex-col gap-6 animate-fade-in-up">
 
             {/* Image upload */}
             <div className="glass border border-white/10 rounded-2xl p-6">
               <div className="flex items-center gap-2 mb-5">
                 <MdCloudUpload className="text-cyan-400 w-5 h-5" />
                 <p className="text-white font-semibold">Product Images</p>
-                <span className="text-white/30 text-xs">(up to 4 images)</span>
+                <span className="text-white/30 text-xs">(upload new image to replace existing)</span>
               </div>
               <div className="flex gap-4 flex-wrap">
-                <ImageUpload id="image1" image={image1} setImage={setImage1} label="Image 1" />
-                <ImageUpload id="image2" image={image2} setImage={setImage2} label="Image 2" />
-                <ImageUpload id="image3" image={image3} setImage={setImage3} label="Image 3" />
-                <ImageUpload id="image4" image={image4} setImage={setImage4} label="Image 4" />
+                <ImageUpload id="image1" image={image1} setImage={setImage1} label="Image 1" existingUrl={product.image1} />
+                <ImageUpload id="image2" image={image2} setImage={setImage2} label="Image 2" existingUrl={product.image2} />
+                <ImageUpload id="image3" image={image3} setImage={setImage3} label="Image 3" existingUrl={product.image3} />
+                <ImageUpload id="image4" image={image4} setImage={setImage4} label="Image 4" existingUrl={product.image4} />
               </div>
             </div>
 
@@ -229,7 +239,7 @@ function Add() {
                 disabled:opacity-60 disabled:cursor-not-allowed
                 flex items-center justify-center gap-2"
             >
-              {loading ? <Loading /> : '✦ Add Product'}
+              {loading ? <Loading /> : '✦ Update Product'}
             </button>
           </form>
         </div>
@@ -238,4 +248,4 @@ function Add() {
   )
 }
 
-export default Add
+export default Edit

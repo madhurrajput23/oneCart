@@ -4,28 +4,36 @@ import { shopDataContext } from '../context/ShopContext'
 import Card from './Card'
 
 function BestSeller() {
-    let {products} = useContext(shopDataContext)
-    let [bestSeller,setBestSeller] = useState([])
+  const { products } = useContext(shopDataContext)
+  const [bestSeller, setBestSeller] = useState([])
 
-    useEffect(()=>{
-    let filterProduct = products.filter((item) => item.bestseller)
+  useEffect(() => {
+    const filtered = products.filter(item => item.bestseller)
+    setBestSeller(filtered.slice(0, 4))
+  }, [products])
 
-    setBestSeller(filterProduct.slice(0,4));
-    },[products])
   return (
-    <div>
-        <div className='h-[8%] w-[100%] text-center mt-[50px] '>
-            <Title text1={"BEST"} text2={"SELLER"}/> 
-            <p className='w-[100%] m-auto text-[13px] md:text-[20px] px-[10px] text-blue-100'>Tried, Tested, Loved – Discover Our All-Time Best Sellers.</p>
-        </div>
-        <div className='w-[100%] h-[50%] mt-[30px] flex items-center justify-center flex-wrap gap-[50px]'>
-            {
-             bestSeller.map((item,index)=>(
-                <Card key={index} name={item.name} id={item._id} price={item.price} image={item.image1}/>
-             ))
-            }
-        </div>
-      
+    <div className="py-16 px-4 bg-gradient-to-b from-[#0c2025] to-[#141414]">
+      {/* Header */}
+      <div className="text-center mb-2">
+        <Title text1="BEST" text2="SELLERS" />
+        <p className="text-blue-200/70 text-sm md:text-base max-w-xl mx-auto mt-1">
+          Tried, Tested, Loved – Discover Our All-Time Best Sellers.
+        </p>
+      </div>
+
+      {/* Cards grid */}
+      <div className="mt-10 flex flex-wrap justify-center gap-8">
+        {bestSeller.map((item, index) => (
+          <div
+            key={index}
+            className="animate-fade-in-up"
+            style={{ animationDelay: `${index * 0.1}s` }}
+          >
+            <Card name={item.name} id={item._id} price={item.price} image={item.image1} />
+          </div>
+        ))}
+      </div>
     </div>
   )
 }
