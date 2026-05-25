@@ -16,9 +16,22 @@ let app = express()
 
 app.use(express.json())
 app.use(cookieParser())
+const allowedOrigins = [
+  "http://localhost:5173",
+  "http://localhost:5174",
+  "http://localhost:5175",
+  "http://localhost:5176",
+  "http://localhost:5177",
+  "https://onecart-admin.onrender.com",
+  "https://onecart-5ti4.onrender.com"
+];
+
 app.use(cors({
- origin:["http://localhost:5173","http://localhost:5174","http://localhost:5175","http://localhost:5176","http://localhost:5177"],
- credentials:true
+  origin: (origin, callback) => {
+    // Allow any onrender.com subdomain or local domains, or let everything through
+    callback(null, origin || true);
+  },
+  credentials: true
 }))
 
 app.use("/api/auth",authRoutes)
